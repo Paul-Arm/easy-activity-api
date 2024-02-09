@@ -1,7 +1,7 @@
 
 
 from peewee import *
-from peewee import Model, AutoField, CharField, DateTimeField, TextField, IntegerField, BooleanField, ForeignKeyField, CompositeKey, MySQLDatabase
+from peewee import SQL, Model, AutoField, CharField, DateTimeField, TextField, IntegerField, BooleanField, ForeignKeyField, CompositeKey, MySQLDatabase
 
 database = MySQLDatabase('EasyActivaty', **{'charset': 'utf8', 'sql_mode': 'PIPES_AS_CONCAT', 'use_unicode': True, 'host': '77.90.57.155', 'port': 6123, 'user': 'root', 'password': 'oNdTxtvWfsflpvmMcJ5ibmkD7O1abNTli5iwTUXojeV05XjOuqxrO2oxxFU42E9r'})
 database.connect()
@@ -61,12 +61,12 @@ class Adresse(BaseModel):
 class Aktivität(BaseModel):
     AktivitätID = AutoField(column_name='AktivitätID', primary_key=True)
     Abstimmungsende = DateTimeField(column_name='Abstimmungsende', null=True)
-    Adresse = ForeignKeyField(column_name='AdresseID', field='AdresseID', model=Adresse, null=True, unique=True)
+    Adresse = ForeignKeyField(column_name='AdresseID', field='AdresseID', model=Adresse, null=True)
     Beschreibung = CharField(column_name='Beschreibung', null=True)
     Endzeitpunkt = DateTimeField(column_name='Endzeitpunkt', null=True)
     Ergebnis = TextField(column_name='Ergebnis', null=True)
-    Ersteller = ForeignKeyField(column_name='ErstellerID', field='NutzerID', model=Nutzer, unique=True)
-    Gruppe = ForeignKeyField(column_name='GruppeID', field='GruppeID', model=Gruppe, unique=True)
+    Ersteller = ForeignKeyField(column_name='ErstellerID', field='NutzerID', model=Nutzer, null=True )
+    Gruppe = ForeignKeyField(column_name='GruppeID', field='GruppeID', model=Gruppe, null=True)
     Ortsabstimmung = IntegerField(column_name='Ortsabstimmung', null=True)
     Startzeitpunkt = DateTimeField(column_name='Startzeitpunkt', null=True)
     Status = IntegerField(column_name='Status', null=True)
@@ -76,3 +76,24 @@ class Aktivität(BaseModel):
 
     class Meta:
         table_name = 'Aktivität'
+        
+class EventOrtVorschlag(BaseModel):
+    VorschlagID = AutoField()
+    AktivitätID = ForeignKeyField(Aktivität, field="AktivitätID", backref='ortvorschlaege')
+    AdresseID = ForeignKeyField(Adresse,field="AdresseID", backref='ortvorschlaege')
+    Ersteller = ForeignKeyField(Nutzer, field='NutzerID')
+    ErstelltAm = DateTimeField(constraints=[SQL('DEFAULT CURRENT_TIMESTAMP')])
+
+    class Meta:
+        table_name = 'EventOrtVorschlag'
+
+class EventZeitVorschlag(BaseModel):
+    VorschlagID = AutoField()
+    AktivitätID = ForeignKeyField(Aktivität, field="AktivitätID", backref='zeitvorschlaege')
+    Startzeit = DateTimeField()
+    Endzeit = DateTimeField()
+    Ersteller = ForeignKeyField(Nutzer, field='NutzerID', backref='zeitvorschlaege')
+    ErstelltAm = DateTimeField(constraints=[SQL('DEFAULT CURRENT_TIMESTAMP')])
+
+    class Meta:
+        table_name = 'EventZeitVorschlag'
