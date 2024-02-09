@@ -1,6 +1,7 @@
 
 
 from peewee import *
+from peewee import Model, AutoField, CharField, DateTimeField, TextField, IntegerField, BooleanField, ForeignKeyField, CompositeKey, MySQLDatabase
 
 database = MySQLDatabase('EasyActivaty', **{'charset': 'utf8', 'sql_mode': 'PIPES_AS_CONCAT', 'use_unicode': True, 'host': '77.90.57.155', 'port': 6123, 'user': 'root', 'password': 'oNdTxtvWfsflpvmMcJ5ibmkD7O1abNTli5iwTUXojeV05XjOuqxrO2oxxFU42E9r'})
 database.connect()
@@ -35,6 +36,15 @@ class Gruppe(BaseModel):
     
     GruppeID = AutoField()
     Gruppenname = CharField()
+    ErstellerID = ForeignKeyField(Nutzer, column_name='ErstellerID', field='NutzerID', null=True)
+
+class NutzerGruppe(BaseModel):
+    NutzerID = ForeignKeyField(Nutzer, column_name='NutzerID')
+    GruppeID = ForeignKeyField(Gruppe, column_name='GruppeID')
+    Status = BooleanField(null=False)
+    class Meta:
+        table_name = 'NutzerGruppe'
+        primary_key = CompositeKey('NutzerID', 'GruppeID')
 
 class Adresse(BaseModel):
     

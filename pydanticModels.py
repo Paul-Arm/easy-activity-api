@@ -13,6 +13,14 @@ class Nutzer(BaseModel):
 class Gruppe(BaseModel):
     GruppeID: int
     Gruppenname: str
+class NeueGruppe(BaseModel):
+    Gruppenname: str
+
+class GruppeSchema(BaseModel):
+    Gruppenname: str
+
+    class Config:
+        orm_mode = True
 
 class Adresse(BaseModel):
     Straße: str
