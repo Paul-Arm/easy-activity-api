@@ -10,7 +10,15 @@ from login import Token, ACCESS_TOKEN_EXPIRE_MINUTES
 from testing import testing_router
 from dbModels import Nutzer
 from passlib.context import CryptContext
+import logging
 
+
+
+# suppress passlib logging
+# module 'bcrypt' has no attribute '__about__'
+# https://github.com/pyca/bcrypt/issues/684
+import logging
+logging.getLogger('passlib').setLevel(logging.ERROR)
 app = FastAPI(
     title="EasyActivity API",
     description="",
@@ -23,6 +31,7 @@ app.include_router(testing_router)
 origins = [
     "http://127.0.0.1:5500",
     "http://localhost:5173",
+
     "https://easy-activity.vercel.app",
 ]
 
@@ -54,9 +63,9 @@ async def login_for_access_token(
 class UserCreate(BaseModel):
     anmeldename: str
     passwort: str
-    telefonnummer: str
     name: str
     vorname: str
+    email: str
 
 @app.post("/create-user")
 async def create_user(user: UserCreate):
@@ -77,12 +86,10 @@ async def create_user(user: UserCreate):
     Nutzer.create(
         Nutzername=user.anmeldename,
         Passwort=hashed_password,
-        anmeldeversuche=0,
-        telefonnummer=user.telefonnummer,
-        name=user.name,
-        vorname=user.vorname,
-        gesperrt=False,
-        adminRolle=0,
+        Nachname=user.name,
+        Vorname=user.vorname,
+        Email=user.email,
+
     )
     return {"message": "User created successfully"}
 

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 
 import os
-from dbModels import db, Nutzer
+from dbModels import Nutzer
 
 # Secret key for JWT encoding/decoding
 SECRET_KEY = "secret_key" #TODO: os.environ["SECRET_KEY"]
