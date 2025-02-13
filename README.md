@@ -18,10 +18,10 @@ pip install -r requirements.txt
 
 ## Running Locally
 
-Start the development server on http://0.0.0.0:5001
+Start the development server on http://127.0.0.1:8000
 
 ```bash
-python main.py
+uvicorn main:app --reload
 ```
 
 When you make changes to your project, the server will automatically reload.

@@ -1,41 +1,102 @@
-from fasthtml.common import *
+from fastapi import FastAPI, Depends, HTTPException, status, Response
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from datetime import timedelta
+from jose import JWTError, jwt
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from login import authenticate_user, get_current_user, create_access_token
+from login import Token, ACCESS_TOKEN_EXPIRE_MINUTES
+#from data import router_data
+from testing import testing_router
+from dbModels import Nutzer
+from passlib.context import CryptContext
 
-app, rt = fast_app(hdrs=(picolink))
+app = FastAPI(
+    title="EasyActivity API",
+    description="",
+)
 
+#app.include_router(router_data)
+app.include_router(testing_router)
 
-@rt("/")
-def get():
-    return (
-        Socials(
-            title="Vercel + FastHTML",
-            site_name="Vercel",
-            description="A demo of Vercel and FastHTML integration",
-            image="https://vercel.fyi/fasthtml-og",
-            url="https://fasthtml-template.vercel.app",
-            twitter_site="@vercel",
-        ),
-        Container(
-            Card(
-                Group(
-                    P(
-                        "FastHTML is a new next-generation web framework for fast, scalable web applications with minimal, compact code. It builds on top of popular foundations like ASGI and HTMX. You can now deploy FastHTML with Vercel CLI or by pushing new changes to your git repository.",
-                    ),
-                ),
-                header=(Titled("FastHTML + Vercel")),
-                footer=(
-                    P(
-                        A(
-                            "Deploy your own",
-                            href="https://vercel.com/templates/python/fasthtml-python-boilerplate",
-                        ),
-                        " or ",
-                        A("learn more", href="https://docs.fastht.ml/"),
-                        "about FastHTML.",
-                    )
-                ),
-            ),
-        ),
+# CORS setup
+origins = [
+    "http://127.0.0.1:5500",
+    "http://localhost:5173",
+    "https://easy-activity.vercel.app",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.post("/token", response_model=Token)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+):
+    user = authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.Nutzername}, expires_delta=access_token_expires
     )
+    return {"access_token": access_token, "token_type": "bearer"}
 
+class UserCreate(BaseModel):
+    anmeldename: str
+    passwort: str
+    telefonnummer: str
+    name: str
+    vorname: str
 
-serve()
+@app.post("/create-user")
+async def create_user(user: UserCreate):
+    # if not current_user.adminRolle == 1:
+    #     raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    existing_user = Nutzer.get_or_none(Nutzer.Nutzername == user.anmeldename)
+    if existing_user:
+        return {"message": "User already exists"}
+    if len(user.passwort) < 8:
+        return Response(
+            status_code=400, content="Password must be at least 8 characters long"
+        )
+    
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    hashed_password = pwd_context.hash(user.passwort)
+    
+    Nutzer.create(
+        Nutzername=user.anmeldename,
+        Passwort=hashed_password,
+        anmeldeversuche=0,
+        telefonnummer=user.telefonnummer,
+        name=user.name,
+        vorname=user.vorname,
+        gesperrt=False,
+        adminRolle=0,
+    )
+    return {"message": "User created successfully"}
+
+@app.patch("/patch-user")
+async def patch_user(username: str, status: str, current_user: dict = Depends(get_current_user)):
+    if not current_user.adminRolle == 1:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    user = Nutzer.get_or_none(Nutzer.Nutzername == username)
+    if not user:
+        return {"message": "User does not exist"}
+    if status not in ["active", "locked"]:
+        return {"message": "Invalid status"}
+    
+    user.gesperrt = status == "locked"
+    user.save()
+    return {"message": "User status updated successfully"}
