@@ -16,6 +16,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+class authError(BaseModel):
+    message: str
+
+    
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -63,17 +67,18 @@ def authenticate_user(username: str, password: str):
         
     if not verify_password(password, user.Passwort):
         # Increase login attempts
-        user.anmeldeversuche += 1
-        user.save()
+        #user.anmeldeversuche += 1
+        #user.save()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Falsches Passwort, noch " + str(3 - user.anmeldeversuche) + " Versuche",
+            detail="Falsches Passwort", #+ str(3 - user.anmeldeversuche) + " Versuche",
             headers={"WWW-Authenticate": "Bearer"},
         )
     else:
         # Reset login attempts
-        user.anmeldeversuche = 0
-        user.save()
+        #user.anmeldeversuche = 0
+        #user.save()
+        pass
     return user
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -88,7 +93,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    # gets the user and verifies the token
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

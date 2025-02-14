@@ -5,13 +5,16 @@ from datetime import timedelta
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from login import authenticate_user, get_current_user, create_access_token
-from login import Token, ACCESS_TOKEN_EXPIRE_MINUTES
+from login import Token, ACCESS_TOKEN_EXPIRE_MINUTES, authError
 #from data import router_data
 from testing import testing_router
 from dbModels import Nutzer
 from passlib.context import CryptContext
 import logging
 
+
+#views
+from Views.gruppenView import gruppe_router
 
 
 # suppress passlib logging
@@ -26,6 +29,7 @@ app = FastAPI(
 
 #app.include_router(router_data)
 app.include_router(testing_router)
+app.include_router(gruppe_router)
 
 # CORS setup
 origins = [
@@ -43,11 +47,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/token", response_model=Token)
+@app.post("/token", responses={401: {"model": authError}, 200: {"model": Token}})
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
-):
-    user = authenticate_user(form_data.username, form_data.password)
+):  
+    try:
+        user = authenticate_user(form_data.username, form_data.password)
+    except Exception as e:  
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

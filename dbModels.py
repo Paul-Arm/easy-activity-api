@@ -24,7 +24,7 @@ class Gruppe(Model):
         database = db
         table_name = "Gruppe"
     
-    GruppenID = AutoField()
+    GruppeID = AutoField()
     Gruppenname = CharField()
 
 class Adresse(Model):
