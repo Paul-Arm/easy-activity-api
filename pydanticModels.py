@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 class Nutzer(BaseModel):
@@ -16,18 +17,19 @@ class Gruppe(BaseModel):
 class Adresse(BaseModel):
     Straße: str
     Hausnummer: str
-    PLZ: str
+    Postleitzahl: str
     Ort: str
+    Staat: str
+
 
 
 
 
 class neueAktivität(BaseModel):
-    Abstimmungsende: str
+    Abstimmungsende: Optional[str] = None
     Adresse: Adresse
     Beschreibung: str
-    Endzeitpunkt: str
-    Ersteller: int
+    Endzeitpunkt: Optional[str] = None
     Ortsabstimmung: int
     Zeitabstimmung: int
     Startzeitpunkt: str
