@@ -1,6 +1,6 @@
 from pydanticModels import neueAktivität
 from dbModels import  Aktivität
-
+import logging
 
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -16,5 +16,6 @@ async def read_all():
 
 @aktivität_router.post("")
 async def create_one(aktivität: neueAktivität):
-    return {"message": "This is a test"}
+    logging.info(aktivität)
+    return {"message": "ok", "data": aktivität.model_dump()}
 
