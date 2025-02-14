@@ -16,6 +16,6 @@ async def read_all():
 
 @aktivität_router.post("")
 async def create_one(aktivität: neueAktivität):
-    logging.info(aktivität)
+    logging.warning(aktivität)
     return {"message": "ok", "data": aktivität.model_dump()}
 
