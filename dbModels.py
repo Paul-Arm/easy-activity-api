@@ -16,7 +16,7 @@ class Nutzer(Model):
     Email = CharField(column_name="E-mail")
     Nachname = CharField(null=True)
     Vorname  = CharField()
-    IstEventVeranstalter = BooleanField(null=False)
+    IstEventveranstalter = BooleanField(null=False)
 
 class Gruppe(Model):
     
