@@ -8,4 +8,5 @@ testing_router = APIRouter()
 async def test():
     #res = Nutzer.create(Nutzername="test", Passwort="test", Email="test", Nachname="test", Vorname="test")
     res = Nutzer.get()
+
     return {"message": res}

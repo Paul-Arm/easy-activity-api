@@ -58,7 +58,7 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user.Nutzername}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "IstEventVeranstalter": user.IstEventVeranstalter}
 
 class UserCreate(BaseModel):
     anmeldename: str
@@ -66,6 +66,7 @@ class UserCreate(BaseModel):
     name: str
     vorname: str
     email: str
+    IstEventVeranstalter: bool #TODO: prüfen ob er das sein kann
 
 @app.post("/create-user")
 async def create_user(user: UserCreate):
@@ -89,6 +90,7 @@ async def create_user(user: UserCreate):
         Nachname=user.name,
         Vorname=user.vorname,
         Email=user.email,
+        IstEventVeranstalter=user.IstEventVeranstalter
 
     )
     return {"message": "User created successfully"}

@@ -16,4 +16,37 @@ class Nutzer(Model):
     Email = CharField(column_name="E-mail")
     Nachname = CharField(null=True)
     Vorname  = CharField()
+    IstEventVeranstalter = BooleanField(null=False)
 
+class Gruppe(Model):
+    
+    class Meta:
+        database = db
+        table_name = "Gruppe"
+    
+    GruppenID = AutoField()
+    Gruppenname = CharField()
+
+class Adresse(Model):
+    
+    class Meta:
+        database = db
+        table_name = "Adresse"
+    
+    AdresseID = AutoField()
+    Straße = CharField()
+    Hausnummer = CharField()
+    PLZ = CharField()
+    Ort = CharField()
+
+class Aktivität(Model):
+
+    class Meta:
+        database = db
+        table_name = "Aktivität"
+    
+    AktivitätsID = AutoField()
+    GruppenID = ForeignKeyField(Gruppe , backref="aktivitäten")
+    Titel = CharField()
+    Beschreibung = CharField()
+    Adresse = ForeignKeyField(Adresse, backref="aktivitäten")
