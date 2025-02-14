@@ -15,6 +15,20 @@ async def read_all():
     activities = [ a for a in Aktivität.select().dicts()]
     return {"content": activities}
 
+@aktivität_router.get("/MeineAktivitaeten", response_model=list)
+async def read_my(current_user: dict = Depends(get_current_user)):
+    user_id = current_user.NutzerID
+    
+    activities = (
+        Aktivität
+        .select()
+        .where(Aktivität.Ersteller == user_id)  # `Ersteller` ist das ForeignKeyField
+        .dicts()
+    )
+
+    return activities 
+
+
 @aktivität_router.post("")
 async def create_one(aktivität: neueAktivität, current_user: dict = Depends(get_current_user)):
 
@@ -32,6 +46,11 @@ async def create_one(aktivität: neueAktivität, current_user: dict = Depends(ge
 
     # Aktivität erstellen
     user_id = current_user.NutzerID
+    # if current_user.IstEventveranstalter:
+    #     groupe_id = None
+    # else:
+    #     groupe_id = "1" #TODO: Gruppe des Nutzers holen
+    groupe_id = "1"
     aktivität = Aktivität.create(
         Titel=aktivität.Titel,
         Beschreibung=aktivität.Beschreibung,
@@ -39,7 +58,7 @@ async def create_one(aktivität: neueAktivität, current_user: dict = Depends(ge
         Startzeitpunkt=aktivität.Startzeitpunkt,
         Endzeitpunkt=aktivität.Endzeitpunkt,
         ErstellerID=user_id,
-        GruppeID="1",
+        GruppeID=groupe_id,
 
     )
 
