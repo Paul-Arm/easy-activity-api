@@ -1,13 +1,23 @@
+
+
 from peewee import *
 
-db = MySQLDatabase( host="77.90.57.155", port=6123, user="root", password="oNdTxtvWfsflpvmMcJ5ibmkD7O1abNTli5iwTUXojeV05XjOuqxrO2oxxFU42E9r", database="EasyActivaty")
-#"mysql://mariadb:65XzK62h2wNZgBN9Ca95S1ylSFM9oAUQ0mKkeboe0sQKQpn5J4LCkZrzd0mLq349@77.90.57.155:6123/default"
-db.connect()
+database = MySQLDatabase('EasyActivaty', **{'charset': 'utf8', 'sql_mode': 'PIPES_AS_CONCAT', 'use_unicode': True, 'host': '77.90.57.155', 'port': 6123, 'user': 'root', 'password': 'oNdTxtvWfsflpvmMcJ5ibmkD7O1abNTli5iwTUXojeV05XjOuqxrO2oxxFU42E9r'})
+database.connect()
 
-class Nutzer(Model):
+
+class UnknownField(object):
+    def __init__(self, *_, **__): pass
+
+class BaseModel(Model):
+    class Meta:
+        database = database
+
+
+
+class Nutzer(BaseModel):
 
     class Meta:
-        database = db
         table_name = "Nutzer"
     
     NutzerID = AutoField()
@@ -18,19 +28,17 @@ class Nutzer(Model):
     Vorname  = CharField()
     IstEventveranstalter = BooleanField(null=False)
 
-class Gruppe(Model):
+class Gruppe(BaseModel):
     
     class Meta:
-        database = db
         table_name = "Gruppe"
     
     GruppeID = AutoField()
     Gruppenname = CharField()
 
-class Adresse(Model):
+class Adresse(BaseModel):
     
     class Meta:
-        database = db
         table_name = "Adresse"
     
     AdresseID = AutoField()
@@ -39,14 +47,21 @@ class Adresse(Model):
     PLZ = CharField()
     Ort = CharField()
 
-class Aktivität(Model):
+class Aktivität(BaseModel):
+    AktivitätID = BigAutoField(column_name='AktivitätID')
+    Abstimmungsende = DateTimeField(column_name='Abstimmungsende', null=True)
+    Adresse = ForeignKeyField(column_name='AdresseID', field='AdresseID', model=Adresse, null=True, unique=True)
+    Beschreibung = CharField(column_name='Beschreibung', null=True)
+    Endzeitpunkt = DateTimeField(column_name='Endzeitpunkt', null=True)
+    Ergebnis = TextField(column_name='Ergebnis', null=True)
+    Ersteller = ForeignKeyField(column_name='ErstellerID', field='NutzerID', model=Nutzer, unique=True)
+    Gruppe = ForeignKeyField(column_name='GruppeID', field='GruppeID', model=Gruppe, unique=True)
+    Ortsabstimmung = IntegerField(column_name='Ortsabstimmung', null=True)
+    Startzeitpunkt = DateTimeField(column_name='Startzeitpunkt', null=True)
+    Status = IntegerField(column_name='Status', null=True)
+    Titel = CharField(column_name='Titel')
+    Zeitabstimmung = IntegerField(column_name='Zeitabstimmung', null=True)
+    Zusagenende = DateTimeField(column_name='Zusagenende', null=True)
 
     class Meta:
-        database = db
-        table_name = "Aktivität"
-    
-    AktivitätsID = AutoField()
-    GruppenID = ForeignKeyField(Gruppe , backref="aktivitäten")
-    Titel = CharField()
-    Beschreibung = CharField()
-    Adresse = ForeignKeyField(Adresse, backref="aktivitäten")
+        table_name = 'Aktivität'

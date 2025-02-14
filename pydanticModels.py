@@ -19,8 +19,17 @@ class Adresse(BaseModel):
     PLZ: str
     Ort: str
 
-class Aktivität(BaseModel):
-    GruppeID: int
-    Titel: str
+
+
+
+class neueAktivität(BaseModel):
+    Abstimmungsende: str
+    Adresse: Adresse
     Beschreibung: str
-    Adresse: int
+    Endzeitpunkt: str
+    Ersteller: int
+    Ortsabstimmung: int
+    Zeitabstimmung: int
+    Startzeitpunkt: str
+    Titel: str
+    Zusagenende: str

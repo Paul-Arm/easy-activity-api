@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
-from dbModels import db, Nutzer
+from dbModels import database, Nutzer, Gruppe, Aktivität, Adresse
 
 
 testing_router = APIRouter()
 
 @testing_router.get("/test")
 async def test():
-    #res = Nutzer.create(Nutzername="test", Passwort="test", Email="test", Nachname="test", Vorname="test")
-    res = Nutzer.get()
+    res = Gruppe.get()
 
     return {"message": res}
