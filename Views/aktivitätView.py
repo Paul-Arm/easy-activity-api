@@ -29,18 +29,18 @@ async def create_one(aktivität: neueAktivität, current_user: dict = Depends(ge
     ).get_or_create()
 
 
-    # # Aktivität erstellen
-    # user_id = current_user.NutzerID
-    # aktivität = Aktivität.create(
-    #     Titel=aktivität.Titel,
-    #     Beschreibung=aktivität.Beschreibung,
-    #     Adresse=adresse.AdresseID,
-    #     Startzeitpunkt=aktivität.Startzeitpunkt,
-    #     Endzeitpunkt=aktivität.Endzeitpunkt,
-    #     ErstellerID=user_id,
-    #     GruppeID="2",
+    # Aktivität erstellen
+    user_id = current_user.NutzerID
+    aktivität = Aktivität.create(
+        Titel=aktivität.Titel,
+        Beschreibung=aktivität.Beschreibung,
+        Adresse=adresse.AdresseID,
+        Startzeitpunkt=aktivität.Startzeitpunkt,
+        Endzeitpunkt=aktivität.Endzeitpunkt,
+        ErstellerID=user_id,
+        GruppeID="1",
 
-    # )
+    )
 
 
     return {"message": "ok"}
