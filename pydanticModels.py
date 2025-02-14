@@ -24,14 +24,13 @@ class Adresse(BaseModel):
 
 
 
-
 class neueAktivität(BaseModel):
     Abstimmungsende: Optional[str] = None
     Adresse: Adresse
-    Beschreibung: str
+    Beschreibung: Optional[str] = None
     Endzeitpunkt: Optional[str] = None
     Ortsabstimmung: int
     Zeitabstimmung: int
     Startzeitpunkt: str
     Titel: str
-    Zusagenende: str
+    Zusagenende: Optional[str] = None

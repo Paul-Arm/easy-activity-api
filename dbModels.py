@@ -44,11 +44,12 @@ class Adresse(BaseModel):
     AdresseID = AutoField()
     Straße = CharField()
     Hausnummer = CharField()
-    PLZ = CharField()
+    Postleitzahl = CharField()
     Ort = CharField()
+    Staat = CharField()
 
 class Aktivität(BaseModel):
-    AktivitätID = BigAutoField(column_name='AktivitätID')
+    AktivitätID = AutoField()
     Abstimmungsende = DateTimeField(column_name='Abstimmungsende', null=True)
     Adresse = ForeignKeyField(column_name='AdresseID', field='AdresseID', model=Adresse, null=True, unique=True)
     Beschreibung = CharField(column_name='Beschreibung', null=True)
