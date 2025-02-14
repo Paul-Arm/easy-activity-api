@@ -2,6 +2,7 @@ from pydanticModels import neueAktivität
 from dbModels import  Aktivität, Adresse
 import logging
 
+from peewee import JOIN
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -19,14 +20,18 @@ async def read_all():
 async def read_my(current_user: dict = Depends(get_current_user)):
     user_id = current_user.NutzerID
     
+    AdresseAlias = Adresse.alias("adr")  # Alias für die Adresse-Tabelle
+
     activities = (
         Aktivität
-        .select()
-        .where(Aktivität.Ersteller == user_id)  # `Ersteller` ist das ForeignKeyField
+        .select(Aktivität, AdresseAlias)  
+        .join(AdresseAlias, JOIN.LEFT_OUTER, on=(Aktivität.Adresse == AdresseAlias.AdresseID))  # Correct JOIN syntax
+        .where(Aktivität.Ersteller == user_id)
         .dicts()
     )
 
-    return activities 
+    return list(activities)  # Explizit in eine Liste umwandeln
+
 
 
 @aktivität_router.post("")
@@ -64,4 +69,3 @@ async def create_one(aktivität: neueAktivität, current_user: dict = Depends(ge
 
 
     return {"message": "ok"}
-
