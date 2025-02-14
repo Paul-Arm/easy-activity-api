@@ -12,7 +12,8 @@ aktivität_router = APIRouter(prefix="/Aktivitaet", tags=["Aktivität"], depende
 
 @aktivität_router.get("")
 async def read_all():
-    return {"message": "This is a test"}
+    activities = [ a for a in Aktivität.select().dicts()]
+    return {"content": activities}
 
 @aktivität_router.post("")
 async def create_one(aktivität: neueAktivität):
