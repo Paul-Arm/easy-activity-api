@@ -20,13 +20,14 @@ async def create_one(aktivität: neueAktivität, current_user: dict = Depends(ge
 
     # Adresse erstellen falls nicht vorhanden
 
-    adresse , a = Adresse.create(
+    adresse, created = Adresse.get_or_create(
         Straße=aktivität.Adresse.Straße,
         Hausnummer=aktivität.Adresse.Hausnummer,
         Postleitzahl=aktivität.Adresse.Postleitzahl,
         Ort=aktivität.Adresse.Ort,
         Staat=aktivität.Adresse.Staat
-    ).get_or_create()
+    )
+
 
 
     # Aktivität erstellen
