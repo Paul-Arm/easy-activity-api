@@ -37,7 +37,7 @@ class AktivitätCreate(BaseModel):
     Endzeitpunkt: Optional[datetime] = None
     IstOrtsabstimmung: bool = False
     IstZeitabstimmung: bool = False
-    GruppeID: int
+    GruppeID: Optional[int] = None
     Abstimmungsende: Optional[datetime] = None
 
 class ZeitVorschlagCreate(BaseModel):
@@ -60,7 +60,7 @@ async def read_my(current_user: dict = Depends(get_current_user)):
         Aktivität
         .select(Aktivität, AdresseAlias)  
         .join(AdresseAlias, JOIN.LEFT_OUTER, on=(Aktivität.Adresse == AdresseAlias.AdresseID))  # Correct JOIN syntax
-        .where(Aktivität.Ersteller == user_id)
+        .where(Aktivität.ErstellerID == user_id)
         .dicts()
     )
 
@@ -202,7 +202,7 @@ async def create_ortvorschlag(
 async def get_ortvorschlaege(activity_id: int):
     res = (EventOrtVorschlag.filter(AktivitätID=activity_id)
            .join(Adresse, on=(EventOrtVorschlag.AdresseID == Adresse.AdresseID))
-           .join(Nutzer, on=(EventOrtVorschlag.Ersteller == Nutzer.NutzerID)))
+           .join(Nutzer, on=(EventOrtVorschlag.ErstellerID == Nutzer.NutzerID)))
     return [ {res} for r in res]
 
 @aktivität_router.post("/{activity_id}/zeitvorschlag")
@@ -235,7 +235,7 @@ async def get_zeitvorschlaege(activity_id: int):
         .left_join(EventZeitVorschlag)
         .where(EventZeitVorschlag.Aktivität == activity_id)
         .group_by(EventZeitVorschlag.VorschlagID)
-        .order_by(fn.COUNT(EventZeitVorschlag.Ersteller).desc())))
+        .order_by(fn.COUNT(EventZeitVorschlag.ErstellerID).desc())))
     
     return [{
         "vorschlag_id": v.VorschlagID,
