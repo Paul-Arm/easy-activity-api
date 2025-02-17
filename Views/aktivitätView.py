@@ -1,7 +1,7 @@
 from pydanticModels import neueAktivität
 from pydanticModels import Adresse as AdresseSchema
 from pydantic import BaseModel
-from dbModels import  Aktivität, Adresse, EventOrtVorschlag, EventZeitVorschlag , Nutzer, database
+from dbModels import  Aktivität, Adresse, EventOrtVorschlag, EventZeitVorschlag , Nutzer, database, Gruppe
 import logging
 
 from peewee import JOIN
@@ -164,7 +164,25 @@ async def create_activity(
             adresse = Adresse.create(**activity.Adresse.dict())
             adresse_id = adresse.AdresseID
 
-        neue_aktivitaet = Aktivität.create(
+        if (activity.GruppeID ):
+            gr = Gruppe.get_or_none(Gruppe.GruppeID == activity.GruppeID)
+            if not gr:
+                raise HTTPException(status_code=404, detail="Gruppe {} nicht gefunden".format(activity.GruppeID))
+
+            neue_aktivitaet = Aktivität.create(
+                Titel=activity.Titel,
+                Beschreibung=activity.Beschreibung,
+                Adresse=adresse_id,
+                Startzeitpunkt=activity.Startzeitpunkt,
+                Endzeitpunkt=activity.Endzeitpunkt,
+                Ortsabstimmung=activity.Ortsabstimmung,
+                Zeitabstimmung=activity.Zeitabstimmung,
+                Ersteller=current_user.NutzerID,
+                Gruppe=activity.GruppeID,
+                Abstimmungsende=activity.Abstimmungsende
+            )
+        else:
+            neue_aktivitaet = Aktivität.create(
             Titel=activity.Titel,
             Beschreibung=activity.Beschreibung,
             Adresse=adresse_id,
@@ -173,9 +191,8 @@ async def create_activity(
             Ortsabstimmung=activity.Ortsabstimmung,
             Zeitabstimmung=activity.Zeitabstimmung,
             Ersteller=current_user.NutzerID,
-            Gruppe="1",
             Abstimmungsende=activity.Abstimmungsende
-        )
+        )            
         
         return {"id": neue_aktivitaet.AktivitätID}
 
