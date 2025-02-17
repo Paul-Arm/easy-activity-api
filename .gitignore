@@ -1,4 +1,5 @@
 .vercel
 .sesskey
 *.py[cod]
+*.pyc
 __pycache__/
