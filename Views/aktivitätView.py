@@ -209,8 +209,9 @@ async def update_activity(
             raise HTTPException(status_code=404, detail="Aktivität {} nicht gefunden".format(id))
 
         adresse_id = None
+        # Adresse erstellen falls geändert und fals Ortsabstimmung nicht aktiv
         if activity.Adresse and not activity.Ortsabstimmung:
-            adresse = Adresse.create(**activity.Adresse.dict())
+            adresse, _ = Adresse.get_or_create(**activity.Adresse.dict())
             adresse_id = adresse.AdresseID
 
         aktivität.Titel = activity.Titel
