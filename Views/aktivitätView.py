@@ -214,7 +214,7 @@ async def update_activity(
             adresse_id = adresse.AdresseID
 
         aktivität.Titel = activity.Titel
-        aktivität.Beschreibung = activity
+        aktivität.Beschreibung = activity.Beschreibung
         aktivität.Adresse = adresse_id
         aktivität.Startzeitpunkt = activity.Startzeitpunkt
         aktivität.Endzeitpunkt = activity.Endzeitpunkt
