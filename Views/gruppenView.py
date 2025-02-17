@@ -115,7 +115,7 @@ async def get_group_details(
             detail=str(e)
         )
 
-@gruppe_router.post("/{group_id}/invite")
+@gruppe_router.post("/{group_id}/Einladen")
 async def invite_user(
     group_id: int,
     invite_data: UserInviteRequest,
@@ -168,7 +168,7 @@ async def invite_user(
         )
 
 
-@gruppe_router.post("/{group_id}/join")
+@gruppe_router.post("/{group_id}/Beitreten")
 async def join_group(
     group_id: int,
     current_user: Nutzer = Depends(get_current_user)
@@ -193,7 +193,7 @@ async def join_group(
             detail=str(e)
         )
 
-@gruppe_router.post("/{group_id}/leave")
+@gruppe_router.post("/{group_id}/Verlassen")
 async def leave_group(
     group_id: int,
     current_user: Nutzer = Depends(get_current_user)

@@ -39,6 +39,8 @@ class AktivitätCreate(BaseModel):
     Zeitabstimmung: bool = False
     GruppeID: Optional[int] = None
     Abstimmungsende: Optional[datetime] = None
+    ZeitAlsSchnittmenge: Optional[bool] = None
+    OffenesEnde: bool
 
 class ZeitVorschlagCreate(BaseModel):
     Startzeit: datetime
@@ -179,7 +181,9 @@ async def create_activity(
                 Zeitabstimmung=activity.Zeitabstimmung,
                 Ersteller=current_user.NutzerID,
                 Gruppe=activity.GruppeID,
-                Abstimmungsende=activity.Abstimmungsende
+                Abstimmungsende=activity.Abstimmungsende,
+                ZeitAlsSchnittmenge=activity.ZeitAlsSchnittmenge,
+                OffenesEnde=activity.OffenesEnde
             )
         else:
             neue_aktivitaet = Aktivität.create(
@@ -191,7 +195,9 @@ async def create_activity(
             Ortsabstimmung=activity.Ortsabstimmung,
             Zeitabstimmung=activity.Zeitabstimmung,
             Ersteller=current_user.NutzerID,
-            Abstimmungsende=activity.Abstimmungsende
+            Abstimmungsende=activity.Abstimmungsende,
+            ZeitAlsSchnittmenge=activity.ZeitAlsSchnittmenge,
+            OffenesEnde=activity.OffenesEnde
         )            
         
         return {"id": neue_aktivitaet.AktivitätID}
@@ -226,7 +232,7 @@ async def update_activity(
 
         return aktivität
 
-@aktivität_router.post("/{id}/ortvorschlag")
+@aktivität_router.post("/{id}/Ortvorschlag")
 async def create_ortvorschlag(
     activity_id: int,
     adresse: AdresseSchema,
@@ -245,7 +251,7 @@ async def create_ortvorschlag(
         )
         return {"vorschlag_id": vorschlag.VorschlagID}
 
-@aktivität_router.get("/{activity_id}/ortvorschlaege")
+@aktivität_router.get("/{id}/Ortvorschlaege")
 async def get_ortvorschlaege(activity_id: int):
     res = (EventOrtVorschlag.filter(AktivitätID=activity_id)
            .join(Adresse, on=(EventOrtVorschlag.AdresseID == Adresse.AdresseID), attr='AdresseID')
@@ -258,7 +264,7 @@ async def get_ortvorschlaege(activity_id: int):
            
     return [v for v in res]
 
-@aktivität_router.post("/{activity_id}/zeitvorschlag")
+@aktivität_router.post("/{id}/Zeitvorschlag")
 async def create_zeitvorschlag(
     activity_id: int,
     zeit: ZeitVorschlagCreate,
@@ -277,7 +283,7 @@ async def create_zeitvorschlag(
         )
         return {"vorschlag_id": vorschlag.VorschlagID}
 
-@aktivität_router.get("/{activity_id}/zeitvorschlaege", response_model=List[dict])
+@aktivität_router.get("/{id}/Zeitvorschlaege", response_model=List[dict])
 async def get_zeitvorschlaege(activity_id: int):
     # query = (EventZeitVorschlag
     #     .select(

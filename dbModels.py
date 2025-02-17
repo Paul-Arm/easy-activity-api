@@ -73,6 +73,8 @@ class Aktivität(BaseModel):
     Titel = CharField(column_name='Titel')
     Zeitabstimmung = IntegerField(column_name='Zeitabstimmung', null=True)
     Zusagenende = DateTimeField(column_name='Zusagenende', null=True)
+    OffenesEnde = BooleanField(column_name='OffenesEnde', null=True)
+    ZeitAlsSchnittmenge = BooleanField(column_name='ZeitAlsSchnittmenge', null=True)
 
     class Meta:
         table_name = 'Aktivität'

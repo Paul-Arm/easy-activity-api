@@ -42,5 +42,7 @@ class neueAktivität(BaseModel):
     Startzeitpunkt: str
     Titel: str
     Zusagenende: Optional[str] = None
+    ZeitAlsSchnittmenge: Optional[bool] = None
+    OffenesEnde: bool
 
 
