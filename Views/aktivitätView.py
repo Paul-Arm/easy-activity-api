@@ -209,18 +209,24 @@ async def create_ortvorschlag(
     with database.atomic():
         db_adresse = Adresse.create(**adresse.dict())
         vorschlag = EventOrtVorschlag.create(
-            Aktivität=activity_id,
-            Adresse=db_adresse.AdresseID,
-            Ersteller=current_user.NutzerID
+            AktivitätID=activity_id,
+            AdresseID=db_adresse.AdresseID,
+            ErstellerID=current_user.NutzerID
         )
         return {"vorschlag_id": vorschlag.VorschlagID}
 
-@aktivität_router.get("/{activity_id}/ortvorschlaege", response_model=List[dict])
+@aktivität_router.get("/{activity_id}/ortvorschlaege")
 async def get_ortvorschlaege(activity_id: int):
     res = (EventOrtVorschlag.filter(AktivitätID=activity_id)
-           .join(Adresse, on=(EventOrtVorschlag.AdresseID == Adresse.AdresseID))
-           .join(Nutzer, on=(EventOrtVorschlag.ErstellerID == Nutzer.NutzerID)))
-    return [ {res} for r in res]
+           .join(Adresse, on=(EventOrtVorschlag.AdresseID == Adresse.AdresseID), attr='AdresseID')
+           .join(Nutzer, on=(EventOrtVorschlag.ErstellerID == Nutzer.NutzerID))
+           .group_by(EventOrtVorschlag.AdresseID)
+           .select(EventOrtVorschlag, Adresse, Nutzer.Nutzername, fn.COUNT(EventOrtVorschlag.AdresseID).alias('votes'))
+           .order_by('votes')
+           .dicts()
+           )
+           
+    return [v for v in res]
 
 @aktivität_router.post("/{activity_id}/zeitvorschlag")
 async def create_zeitvorschlag(
