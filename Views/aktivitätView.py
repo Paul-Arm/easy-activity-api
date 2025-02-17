@@ -173,8 +173,8 @@ async def create_activity(
             Ortsabstimmung=activity.Ortsabstimmung,
             Zeitabstimmung=activity.Zeitabstimmung,
             Ersteller=current_user.NutzerID,
-            Gruppe=activity.GruppeID,
-            Abstimmungsende=activity.Abstimungsende
+            Gruppe="1",
+            Abstimmungsende=activity.Abstimmungsende
         )
         
         return {"id": neue_aktivitaet.AktivitätID}
