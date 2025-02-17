@@ -48,4 +48,4 @@ class neueAktivität(BaseModel):
 class TeilnahmeModel(BaseModel):
     NutzerID: int
     AktivitätID: int
-    Status: bool
+    StimmtZu: bool
