@@ -9,7 +9,7 @@ import os
 from dbModels import Nutzer
 
 # Secret key for JWT encoding/decoding
-SECRET_KEY = "secret_key" #TODO: os.environ["SECRET_KEY"]
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -19,7 +19,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class authError(BaseModel):
     message: str
 
-    
+
 class Token(BaseModel):
     access_token: str
     token_type: str
