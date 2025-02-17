@@ -45,4 +45,7 @@ class neueAktivität(BaseModel):
     ZeitAlsSchnittmenge: Optional[bool] = None
     OffenesEnde: bool
 
-
+class TeilnahmeModel(BaseModel):
+    NutzerID: int
+    AktivitätID: int
+    Status: bool

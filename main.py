@@ -16,6 +16,7 @@ import logging
 #views
 from Views.gruppenView import gruppe_router
 from Views.aktivitätView import aktivität_router
+from Views.teilnahmeView import teilnahme_router
 
 
 # suppress passlib logging
@@ -32,6 +33,7 @@ app = FastAPI(
 app.include_router(testing_router)
 app.include_router(gruppe_router)
 app.include_router(aktivität_router)
+app.include_router(teilnahme_router)
 
 # CORS setup
 origins = [

@@ -2,8 +2,14 @@
 
 from peewee import *
 from peewee import SQL, PrimaryKeyField, Model, AutoField, CharField, DateTimeField, TextField, IntegerField, BooleanField, ForeignKeyField, CompositeKey, MySQLDatabase
+import os
 
-database = MySQLDatabase('EasyActivaty', **{'charset': 'utf8', 'sql_mode': 'PIPES_AS_CONCAT', 'use_unicode': True, 'host': '77.90.57.155', 'port': 6123, 'user': 'root', 'password': 'oNdTxtvWfsflpvmMcJ5ibmkD7O1abNTli5iwTUXojeV05XjOuqxrO2oxxFU42E9r'})
+pw = os.environ.get("DB_PASSWORD")
+if pw is None:
+    raise Exception("DB_PASSWORD not set")
+
+
+database = MySQLDatabase('EasyActivaty', **{'charset': 'utf8', 'sql_mode': 'PIPES_AS_CONCAT', 'use_unicode': True, 'host': '77.90.57.155', 'port': 6123, 'user': 'root', 'password': pw})
 database.connect()
 
 
@@ -99,3 +105,12 @@ class EventZeitVorschlag(BaseModel):
 
     class Meta:
         table_name = 'EventZeitVorschlag'
+
+
+class Teilnehmer(BaseModel):
+    NutzerID = ForeignKeyField(Nutzer, column_name='NutzerID', field='NutzerID')
+    AktivitätID = ForeignKeyField(Aktivität, column_name='AktivitätID', field='AktivitätID')
+    StimmtZu = BooleanField(null=True)
+    class Meta:
+        table_name = 'Teilnehmer'
+        primary_key = CompositeKey('NutzerID', 'AktivitätID')

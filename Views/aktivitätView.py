@@ -160,11 +160,16 @@ async def create_activity(
     activity: AktivitätCreate,
     current_user: Nutzer = Depends(get_current_user)
 ):
+    
+
+
+
     with database.atomic():
         adresse_id = None
         if activity.Adresse and not activity.Ortsabstimmung:
             adresse = Adresse.create(**activity.Adresse.dict())
             adresse_id = adresse.AdresseID
+
 
         if (activity.GruppeID ):
             gr = Gruppe.get_or_none(Gruppe.GruppeID == activity.GruppeID)
@@ -228,6 +233,8 @@ async def update_activity(
         aktivität.Ortsabstimmung = activity.Ortsabstimmung
         aktivität.Zeitabstimmung = activity.Zeitabstimmung
         aktivität.Abstimmungsende = activity.Abstimmungsende
+        aktivität.OffenesEnde = activity.OffenesEnde
+        aktivität.ZeitAlsSchnittmenge = activity.ZeitAlsSchnittmenge
         aktivität.save()
 
         return aktivität
