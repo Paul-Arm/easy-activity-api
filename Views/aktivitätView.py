@@ -35,8 +35,8 @@ class AktivitätCreate(BaseModel):
     Adresse: Optional[AdresseSchema] = None
     Startzeitpunkt: Optional[datetime] = None
     Endzeitpunkt: Optional[datetime] = None
-    IstOrtsabstimmung: bool = False
-    IstZeitabstimmung: bool = False
+    Ortsabstimmung: bool = False
+    Zeitabstimmung: bool = False
     GruppeID: Optional[int] = None
     Abstimmungsende: Optional[datetime] = None
 
@@ -160,7 +160,7 @@ async def create_activity(
 ):
     with database.atomic():
         adresse_id = None
-        if activity.Adresse and not activity.IstOrtsabstimmung:
+        if activity.Adresse and not activity.Ortsabstimmung:
             adresse = Adresse.create(**activity.Adresse.dict())
             adresse_id = adresse.AdresseID
 
@@ -170,8 +170,8 @@ async def create_activity(
             Adresse=adresse_id,
             Startzeitpunkt=activity.Startzeitpunkt,
             Endzeitpunkt=activity.Endzeitpunkt,
-            IstOrtsabstimmung=activity.IstOrtsabstimmung,
-            IstZeitabstimmung=activity.IstZeitabstimmung,
+            Ortsabstimmung=activity.Ortsabstimmung,
+            Zeitabstimmung=activity.Zeitabstimmung,
             Ersteller=current_user.NutzerID,
             Gruppe=activity.GruppeID,
             Abstimmungsende=activity.Abstimungsende
@@ -186,7 +186,7 @@ async def create_ortvorschlag(
     current_user: Nutzer = Depends(get_current_user)
 ):
     aktivität = Aktivität.get_or_none(Aktivität.AktivitätID == activity_id)
-    if not aktivität or not aktivität.IstOrtsabstimmung:
+    if not aktivität or not aktivität.Ortsabstimmung:
         raise HTTPException(status_code=400, detail="Ortsabstimmung nicht aktiv")
 
     with database.atomic():
@@ -212,7 +212,7 @@ async def create_zeitvorschlag(
     current_user: Nutzer = Depends(get_current_user)
 ):
     aktivität = Aktivität.get_or_none(Aktivität.AktivitätID == activity_id)
-    if not aktivität or not aktivität.IstZeitabstimmung:
+    if not aktivität or not aktivität.Zeitabstimmung:
         raise HTTPException(status_code=400, detail="Zeitabstimmung nicht aktiv")
 
     with database.atomic():
