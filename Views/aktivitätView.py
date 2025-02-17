@@ -196,7 +196,36 @@ async def create_activity(
         
         return {"id": neue_aktivitaet.AktivitätID}
 
-@aktivität_router.post("/{activity_id}/ortvorschlag")
+
+@aktivität_router.patch("/{id}")
+async def update_activity(
+    id: int,
+    activity: AktivitätCreate,
+    current_user: Nutzer = Depends(get_current_user)
+):
+    with database.atomic():
+        aktivität = Aktivität.get_or_none(Aktivität.AktivitätID == id)
+        if not aktivität:
+            raise HTTPException(status_code=404, detail="Aktivität {} nicht gefunden".format(id))
+
+        adresse_id = None
+        if activity.Adresse and not activity.Ortsabstimmung:
+            adresse = Adresse.create(**activity.Adresse.dict())
+            adresse_id = adresse.AdresseID
+
+        aktivität.Titel = activity.Titel
+        aktivität.Beschreibung = activity
+        aktivität.Adresse = adresse_id
+        aktivität.Startzeitpunkt = activity.Startzeitpunkt
+        aktivität.Endzeitpunkt = activity.Endzeitpunkt
+        aktivität.Ortsabstimmung = activity.Ortsabstimmung
+        aktivität.Zeitabstimmung = activity.Zeitabstimmung
+        aktivität.Abstimmungsende = activity.Abstimmungsende
+        aktivität.save()
+
+        return aktivität
+
+@aktivität_router.post("/{id}/ortvorschlag")
 async def create_ortvorschlag(
     activity_id: int,
     adresse: AdresseSchema,
@@ -240,30 +269,32 @@ async def create_zeitvorschlag(
 
     with database.atomic():
         vorschlag = EventZeitVorschlag.create(
-            Aktivität=activity_id,
+            AktivitätID=activity_id,
             Startzeit=zeit.Startzeit,
             Endzeit=zeit.Endzeit,
-            Ersteller=current_user.NutzerID
+            ErstellerID=current_user.NutzerID
         )
         return {"vorschlag_id": vorschlag.VorschlagID}
 
 @aktivität_router.get("/{activity_id}/zeitvorschlaege", response_model=List[dict])
 async def get_zeitvorschlaege(activity_id: int):
-    query = (EventZeitVorschlag
-        .select(
-            EventZeitVorschlag,
-            Nutzer.Nutzername,
-            fn.COUNT(EventZeitVorschlag.Nutzer).alias('votes')
-        .join(Nutzer)
-        .left_join(EventZeitVorschlag)
-        .where(EventZeitVorschlag.Aktivität == activity_id)
-        .group_by(EventZeitVorschlag.VorschlagID)
-        .order_by(fn.COUNT(EventZeitVorschlag.ErstellerID).desc())))
+    # query = (EventZeitVorschlag
+    #     .select(
+    #         EventZeitVorschlag,
+    #         Nutzer.Nutzername,
+    #         fn.COUNT(EventZeitVorschlag.Nutzer).alias('votes')
+    #     .join(Nutzer)
+    #     .left_join(EventZeitVorschlag)
+    #     .where(EventZeitVorschlag.Aktivität == activity_id)
+    #     .group_by(EventZeitVorschlag.VorschlagID)
+    #     .order_by(fn.COUNT(EventZeitVorschlag.ErstellerID).desc())))
     
-    return [{
-        "vorschlag_id": v.VorschlagID,
-        "startzeit": v.Startzeit,
-        "endzeit": v.Endzeit,
-        "ersteller": v.Ersteller.Nutzername,
-        "votes": v.votes
-    } for v in query]
+    res = (EventZeitVorschlag.filter(AktivitätID=activity_id)
+           .join(Nutzer, on=(EventZeitVorschlag.ErstellerID == Nutzer.NutzerID))
+           .select(EventZeitVorschlag, Nutzer.Nutzername, fn.COUNT(EventZeitVorschlag.Startzeit, EventZeitVorschlag.Endzeit).alias('votes'))
+           .group_by(EventZeitVorschlag.Startzeit, EventZeitVorschlag.Endzeit)
+
+           .dicts()
+           )
+           
+    return [v for v in res]
