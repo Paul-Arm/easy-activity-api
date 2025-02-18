@@ -1,12 +1,7 @@
-# FastHTML Boilerplate
+# EasyActivity API
 
-Deploy your [FastHTML](https://fastht.ml/) project to Vercel with zero configuration.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/framework-boilerplates/fasthtml&template=fasthtml)
 
-_Live Example: https://fasthtml-template.vercel.app_
-
-Visit the [FastHTML documentation](https://docs.fastht.ml/) to learn more.
 
 ## Getting Started
 
@@ -20,6 +15,12 @@ pip install -r requirements.txt
 
 Start the development server on http://127.0.0.1:8000
 
+On first time use, install the asgi server [uvicorn](https://www.uvicorn.org/)
+```bash
+pip install uvicorn
+```
+
+run the server via
 ```bash
 uvicorn main:app --reload
 ```
@@ -35,6 +36,5 @@ npm install -g vercel
 vercel --prod
 ```
 
-Or `git push` to your repostory with our [git integration](https://vercel.com/docs/deployments/git).
+Or `git push` to this repostory
 
-To view the source code for this template, [visit the example repository](https://github.com/vercel/vercel/tree/main/examples/fasthtml).
