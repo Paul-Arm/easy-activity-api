@@ -93,7 +93,7 @@ async def create_activity(
     with database.atomic():
         adresse_id = None
         if activity.Adresse and not activity.Ortsabstimmung:
-            adresse = Adresse.create(**activity.Adresse.dict())
+            adresse, _ = Adresse.get_or_create(**activity.Adresse.dict())
             adresse_id = adresse.AdresseID
 
 
