@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Response
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from pydanticModels import UserCreate
 from datetime import timedelta
@@ -12,7 +13,7 @@ from passlib.context import CryptContext
 import logging
 
 from peewee import IntegrityError
-
+from dbModels import database
 
 #views
 from Views.gruppenView import gruppe_router
@@ -28,10 +29,34 @@ import logging
 logging.getLogger('passlib').setLevel(logging.ERROR)
 
 
+
+# Lifespan-Event für sauberes Starten/Stoppen
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start up
+    database.connect()
+    yield
+    # exit
+    database.close()
+
+
 app = FastAPI(
     title="EasyActivity API",
-    description="",
+    summary="API für die EasyActivity Webanwendung",
+    description=(
+        "EasyActivity API bietet eine Reihe von Endpunkten, "
+        "die es Benutzern ermöglichen, sich zu registrieren, "
+        "sich anzumelden und auf verschiedene Ressourcen wie "
+        "Gruppen, Aktivitäten, Teilnahmen und Nachrichten zuzugreifen. "
+        "Die API unterstützt Authentifizierung und Autorisierung "
+        "über OAuth2 und JSON Web Tokens (JWT)."
+    ),
+    version="0.1.2",
+    lifespan=lifespan
+
+
 )
+
 
 # Routers
 app.include_router(gruppe_router)

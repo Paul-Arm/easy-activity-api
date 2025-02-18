@@ -10,7 +10,7 @@ if pw is None:
 
 
 database = MySQLDatabase('EasyActivaty', **{'charset': 'utf8', 'sql_mode': 'PIPES_AS_CONCAT', 'use_unicode': True, 'host': '77.90.57.155', 'port': 6123, 'user': 'root', 'password': pw})
-database.connect()
+
 
 
 class UnknownField(object):
@@ -87,7 +87,7 @@ class Aktivität(BaseModel):
         
 class EventOrtVorschlag(BaseModel):
     VorschlagID = AutoField()
-    AktivitätID = ForeignKeyField(Aktivität, column_name='AktivitätID', field="AktivitätID", backref='ortvorschlaege')
+    AktivitätID = ForeignKeyField(Aktivität, column_name='AktivitaetID', field="AktivitätID", backref='ortvorschlaege')
     AdresseID = ForeignKeyField(Adresse,column_name='AdresseID'  , field="AdresseID", backref='ortvorschlaege')
     ErstellerID = ForeignKeyField(Nutzer,column_name='ErstellerID', field='NutzerID')
     ErstelltAm = DateTimeField(constraints=[SQL('DEFAULT CURRENT_TIMESTAMP')])
@@ -97,7 +97,7 @@ class EventOrtVorschlag(BaseModel):
 
 class EventZeitVorschlag(BaseModel):
     VorschlagID = AutoField()
-    AktivitätID = ForeignKeyField(Aktivität,column_name='AktivitätID', field="AktivitätID", backref='zeitvorschlaege')
+    AktivitätID = ForeignKeyField(Aktivität,column_name='AktivitaetID', field="AktivitätID", backref='zeitvorschlaege')
     Startzeit = DateTimeField()
     Endzeit = DateTimeField()
     ErstellerID = ForeignKeyField(Nutzer,column_name='ErstellerID', field='NutzerID', backref='zeitvorschlaege')
