@@ -85,7 +85,7 @@ class UserCreate(BaseModel):
     name: str
     vorname: str
     email: str
-    IstEventveranstalter: bool #TODO: prüfen ob er das sein kann
+
 
 @app.post("/create-user")
 async def create_user(user: UserCreate):
@@ -109,7 +109,7 @@ async def create_user(user: UserCreate):
             Nachname=user.name,
             Vorname=user.vorname,
             Email=user.email,
-            IstEventveranstalter=user.IstEventveranstalter
+            IstEventveranstalter=False
 
         )
         return {"message": "Nutzer erfolgreich erstellt"}
