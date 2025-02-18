@@ -83,7 +83,7 @@ class Aktivität(BaseModel):
     ZeitAlsSchnittmenge = BooleanField(column_name='ZeitAlsSchnittmenge', null=True)
 
     class Meta:
-        table_name = 'Aktivität'
+        table_name = 'Aktivitaet'
         
 class EventOrtVorschlag(BaseModel):
     VorschlagID = AutoField()
