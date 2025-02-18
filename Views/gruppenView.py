@@ -116,6 +116,43 @@ async def get_group_details(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+    
+@gruppe_router.get("/{group_id}/Mitglieder", response_model=list)
+async def get_group_members(
+    group_id: int, 
+    current_user: Nutzer = Depends(get_current_user)
+):
+    try:
+        NutzerGruppe.get(
+            (NutzerGruppe.NutzerID == current_user.NutzerID) &
+            (NutzerGruppe.GruppeID == group_id) &
+            (NutzerGruppe.Status == True)
+        )
+        members = (Nutzer.select()
+                   .join(NutzerGruppe)
+                   .select(Nutzer.Nutzername, Nutzer.Email, Nutzer.Vorname, Nutzer.Nachname, Nutzer.NutzerID)
+                   .where(
+                       (NutzerGruppe.GruppeID == group_id) &
+                       (NutzerGruppe.Status == True)
+                   ).dicts()
+                   )
+        return [member for member in members]
+    except NutzerGruppe.DoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this group"
+        )
+    except Gruppe.DoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Group not found"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
 
 @gruppe_router.post("/{group_id}/Einladen")
 async def invite_user(

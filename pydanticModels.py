@@ -23,6 +23,8 @@ class Nutzer(BaseModel):
 class Gruppe(BaseModel):
     GruppeID: int
     Gruppenname: str
+    ErstellerID: Optional[int] = None
+
 class NeueGruppe(BaseModel):
     Gruppenname: str
 
