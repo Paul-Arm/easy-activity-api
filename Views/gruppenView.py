@@ -76,9 +76,11 @@ async def get_pending_invitations(current_user: Nutzer = Depends(get_current_use
                            .where(
                                (NutzerGruppe.NutzerID == current_user.NutzerID) &
                                (NutzerGruppe.Status == False)
-                           ))
+                           )
+                           .dicts()
+                           )
         
-        return [model_to_dict(invite.gruppe_id, recurse=False) for invite in pending_invites]
+        return [i for i in pending_invites]    
     
     except Exception as e:
         raise HTTPException(
