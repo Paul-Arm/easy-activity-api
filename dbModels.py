@@ -65,7 +65,7 @@ class Adresse(BaseModel):
     Staat = CharField()
 
 class Aktivität(BaseModel):
-    AktivitätID = AutoField( column_name='AktivitätID')
+    AktivitätID = AutoField( column_name='AktivitaetID')
     Abstimmungsende = DateTimeField(column_name='Abstimmungsende', null=True)
     Adresse = ForeignKeyField(column_name='AdresseID', field='AdresseID', model=Adresse, null=True)
     Beschreibung = CharField(column_name='Beschreibung', null=True)

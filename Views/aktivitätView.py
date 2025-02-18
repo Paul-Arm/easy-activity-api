@@ -188,9 +188,14 @@ async def create_activity(
                 Gruppe=activity.GruppeID,
                 Abstimmungsende=activity.Abstimmungsende,
                 ZeitAlsSchnittmenge=activity.ZeitAlsSchnittmenge,
-                OffenesEnde=activity.OffenesEnde
+                OffenesEnde=activity.OffenesEnde,
+                Status=0,
+                
             )
         else:
+            if not current_user.IstEventveranstalter:
+                raise HTTPException(status_code=400, detail="Nur Eventveranstalter können öffentliche Aktivitätenerstellen")
+            
             neue_aktivitaet = Aktivität.create(
             Titel=activity.Titel,
             Beschreibung=activity.Beschreibung,
