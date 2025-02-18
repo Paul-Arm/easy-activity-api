@@ -47,13 +47,22 @@ class ZeitVorschlagCreate(BaseModel):
     Endzeit: datetime
 
 
-@aktivität_router.get("", response_model=dict)
-async def read_all():
-    activities = [ a for a in Aktivität.select().dicts()]
-    return {"content": activities}
+@aktivität_router.get("", response_model=list)
+async def get_Public_Activities():
+    """Gibt alle öffentlichen Aktivitäten zurück"""
+    activities = (
+        Aktivität
+        .select(Aktivität, Adresse)
+        .join(Adresse, JOIN.LEFT_OUTER, on=(Aktivität.Adresse == Adresse.AdresseID))
+        .where(Aktivität.Gruppe == None) #TODO: ?
+        .dicts()
+    )
+
+    return list(activities)
 
 @aktivität_router.get("/MeineAktivitaeten", response_model=list)
 async def read_my(current_user: dict = Depends(get_current_user)):
+    """Gibt alle Aktivitäten des aktuellen Nutzers zurück"""
     user_id = current_user.NutzerID
     
     AdresseAlias = Adresse.alias("adr")  # Alias für die Adresse-Tabelle
@@ -70,86 +79,6 @@ async def read_my(current_user: dict = Depends(get_current_user)):
 
 
 
-# @aktivität_router.post("")
-# async def create_one(aktivität: neueAktivität, current_user: dict = Depends(get_current_user)):
-
-#     # Adresse erstellen falls nicht vorhanden
-
-#     adresse, created = Adresse.get_or_create(
-#         Straße=aktivität.Adresse.Straße,
-#         Hausnummer=aktivität.Adresse.Hausnummer,
-#         Postleitzahl=aktivität.Adresse.Postleitzahl,
-#         Ort=aktivität.Adresse.Ort,
-#         Staat=aktivität.Adresse.Staat
-#     )
-
-
-
-#     # Aktivität erstellen
-#     user_id = current_user.NutzerID
-#     # if current_user.IstEventveranstalter:
-#     #     groupe_id = None
-#     # else:
-#     #     groupe_id = "1" #TODO: Gruppe des Nutzers holen
-#     groupe_id = "1"
-#     aktivität = Aktivität.create(
-#         Titel=aktivität.Titel,
-#         Beschreibung=aktivität.Beschreibung,
-#         Adresse=adresse.AdresseID,
-#         Startzeitpunkt=aktivität.Startzeitpunkt,
-#         Endzeitpunkt=aktivität.Endzeitpunkt,
-#         ErstellerID=user_id,
-#         GruppeID=groupe_id,
-
-#     )
-
-
-#     return {"message": "ok"}
-
-# @aktivität_router.post("/{activity_id}/ortvorschlag")
-# async def add_ortvorschlag(activity_id: int, adresse: AdresseSchema, current_user=Depends(get_current_user)):
-#     aktivitaet = Aktivität.get_or_none(Aktivität.AktivitätID == activity_id)
-#     if not aktivitaet or not aktivitaet.IstOrtsabstimmung:
-#         raise HTTPException(status_code=400, detail="Ortsabstimmung nicht aktiv")
-
-#     db_adresse = Adresse.create(**adresse.dict())
-#     vorschlag = EventOrtVorschlag.create(
-#         Aktivität=activity_id,
-#         Adresse=db_adresse.AdresseID,
-#         Ersteller=current_user.NutzerID
-#     )
-#     return {"vorschlag_id": vorschlag.VorschlagID}
-
-# @aktivität_router.get("/{activity_id}/ortvorschlaege", response_model=list)
-# async def get_ortvorschlaege(activity_id: int):
-#     VotesAlias = EventOrtVorschlag.alias()
-#     query = (EventOrtVorschlag
-#              .select(
-#                  EventOrtVorschlag,
-#                  Adresse,
-#                  Nutzer.Nutzername,
-#                  fn.COUNT(VotesAlias.Ersteller).alias('votes')
-#              )
-#              .join(Adresse, on=(EventOrtVorschlag.AdresseID == Adresse.AdresseID))
-#              .join(Nutzer, on=(EventOrtVorschlag.Ersteller == Nutzer.NutzerID))
-#              .join(VotesAlias, JOIN.LEFT_OUTER, on=(EventOrtVorschlag.VorschlagID == VotesAlias.VorschlagID))
-#              .where(EventOrtVorschlag.AktivitätID == activity_id)
-#              .group_by(EventOrtVorschlag.VorschlagID)
-#              .order_by(fn.COUNT(VotesAlias.Ersteller).desc()))
-#     return list(query.dicts())
-
-# @aktivität_router.post("/{activity_id}/ortvote/{vorschlag_id}")
-# async def vote_ort(activity_id: int, vorschlag_id: int, current_user=Depends(get_current_user)):
-#     try:
-#         EventOrtVorschlag.create(
-#             Nutzer=current_user.NutzerID,
-#             Vorschlag=vorschlag_id
-#         )
-#         return {"message": "Vote erfolgreich"}
-#     except IntegrityError:
-#         raise HTTPException(status_code=400, detail="Bereits gevotet")
-
-
 
 
 
@@ -158,11 +87,8 @@ async def read_my(current_user: dict = Depends(get_current_user)):
 @aktivität_router.post("", status_code=status.HTTP_201_CREATED)
 async def create_activity(
     activity: AktivitätCreate,
-    current_user: Nutzer = Depends(get_current_user)
-):
-    
-
-
+    current_user: Nutzer = Depends(get_current_user)):
+    """Erstellt eine neue Aktivität"""
 
     with database.atomic():
         adresse_id = None
