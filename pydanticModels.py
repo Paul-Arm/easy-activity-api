@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
+import datetime
 
 class Nutzer(BaseModel):
     Nutzername: str
@@ -49,3 +50,16 @@ class TeilnahmeModel(BaseModel):
     NutzerID: int
     AktivitätID: int
     StimmtZu: bool
+
+
+class NeueNachricht(BaseModel):
+    Inhalt: str
+    GruppenID: int
+
+class NachrichtenSchema(BaseModel):
+    NachrichtenID: int
+    Inhalt: str
+    GruppenID: int
+    NutzerID: int
+    Zeitstempel: datetime.datetime
+

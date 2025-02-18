@@ -114,3 +114,14 @@ class Teilnehmer(BaseModel):
     class Meta:
         table_name = 'Teilnehmer'
         primary_key = CompositeKey('NutzerID', 'AktivitätID')
+
+
+class Nachrichten(BaseModel):
+    NachrichtenID = AutoField()
+    GruppenID = ForeignKeyField(Gruppe, column_name='GruppenID', field='GruppeID')
+    NutzerID = ForeignKeyField(Nutzer, column_name='NutzerID', field='NutzerID')
+    Zeitstempel = DateTimeField()
+    Inhalt = TextField()
+
+    class Meta:
+        table_name = 'Nachrichten'

@@ -19,6 +19,7 @@ from peewee import IntegrityError
 from Views.gruppenView import gruppe_router
 from Views.aktivitätView import aktivität_router
 from Views.teilnahmeView import teilnahme_router
+from Views.nachrichtenView import nachrichten_router
 
 
 # suppress passlib logging
@@ -36,6 +37,7 @@ app.include_router(testing_router)
 app.include_router(gruppe_router)
 app.include_router(aktivität_router)
 app.include_router(teilnahme_router)
+app.include_router(nachrichten_router)
 
 # CORS setup
 origins = [
