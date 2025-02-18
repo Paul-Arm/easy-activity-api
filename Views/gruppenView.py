@@ -21,7 +21,7 @@ gruppe_router = APIRouter(
 )
 
 class UserInviteRequest(BaseModel):
-    user_id: int
+    userEmail: str
 
 
 @gruppe_router.post("", status_code=status.HTTP_201_CREATED)
@@ -121,7 +121,11 @@ async def invite_user(
     invite_data: UserInviteRequest,
     current_user: Nutzer = Depends(get_current_user)
 ):
+    """
+    Lädt einen Nutzer über seine Email in eine Gruppe ein
+    """
     try:
+        nutzer_to_invite_id = Nutzer.get(Nutzer.Email == invite_data.userEmail).NutzerID
         group = Gruppe.get(Gruppe.GruppeID == group_id)
         
         #TODO: richtig ?
@@ -131,10 +135,10 @@ async def invite_user(
         #         detail="Only group creator can invite users"
         #     )
         
-        user_to_invite = Nutzer.get(Nutzer.NutzerID == invite_data.user_id)
+        user_to_invite = Nutzer.get(Nutzer.NutzerID == nutzer_to_invite_id)
         
         if NutzerGruppe.get_or_none(
-            (NutzerGruppe.NutzerID == invite_data.user_id) &
+            (NutzerGruppe.NutzerID == nutzer_to_invite_id) &
             (NutzerGruppe.GruppeID == group_id)
         ):
             raise HTTPException(
@@ -143,7 +147,7 @@ async def invite_user(
             )
         
         NutzerGruppe.create(
-            NutzerID=invite_data.user_id,
+            NutzerID=nutzer_to_invite_id,
             GruppeID=group_id,
             Status=False
         )

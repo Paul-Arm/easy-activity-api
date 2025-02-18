@@ -12,6 +12,8 @@ from dbModels import Nutzer
 from passlib.context import CryptContext
 import logging
 
+from peewee import IntegrityError
+
 
 #views
 from Views.gruppenView import gruppe_router
@@ -98,17 +100,19 @@ async def create_user(user: UserCreate):
     
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     hashed_password = pwd_context.hash(user.passwort)
-    
-    Nutzer.create(
-        Nutzername=user.anmeldename,
-        Passwort=hashed_password,
-        Nachname=user.name,
-        Vorname=user.vorname,
-        Email=user.email,
-        IstEventveranstalter=user.IstEventveranstalter
+    try:
+        Nutzer.create(
+            Nutzername=user.anmeldename,
+            Passwort=hashed_password,
+            Nachname=user.name,
+            Vorname=user.vorname,
+            Email=user.email,
+            IstEventveranstalter=user.IstEventveranstalter
 
-    )
-    return {"message": "User created successfully"}
+        )
+        return {"message": "Nutzer erfolgreich erstellt"}
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="Die Email ist bereits registriert")
 
 @app.patch("/patch-user")
 async def patch_user(username: str, status: str, current_user: dict = Depends(get_current_user)):
