@@ -1,13 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Response
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydanticModels import UserCreate
 from datetime import timedelta
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from login import authenticate_user, get_current_user, create_access_token
 from login import Token, ACCESS_TOKEN_EXPIRE_MINUTES, authError
-#from data import router_data
-from testing import testing_router
+
 from dbModels import Nutzer
 from passlib.context import CryptContext
 import logging
@@ -27,13 +26,14 @@ from Views.nachrichtenView import nachrichten_router
 # https://github.com/pyca/bcrypt/issues/684
 import logging
 logging.getLogger('passlib').setLevel(logging.ERROR)
+
+
 app = FastAPI(
     title="EasyActivity API",
     description="",
 )
 
-#app.include_router(router_data)
-app.include_router(testing_router)
+# Routers
 app.include_router(gruppe_router)
 app.include_router(aktivität_router)
 app.include_router(teilnahme_router)
@@ -55,6 +55,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#standart login routes
 @app.post("/token", responses={401: {"model": authError}, 200: {"model": Token}})
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -79,12 +80,6 @@ async def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer", "IstEventveranstalter": user.IstEventveranstalter}
 
-class UserCreate(BaseModel):
-    anmeldename: str
-    passwort: str
-    name: str
-    vorname: str
-    email: str
 
 
 @app.post("/create-user")
@@ -116,17 +111,12 @@ async def create_user(user: UserCreate):
     except IntegrityError:
         raise HTTPException(status_code=400, detail="Die Email ist bereits registriert")
 
-@app.patch("/patch-user")
-async def patch_user(username: str, status: str, current_user: dict = Depends(get_current_user)):
-    if not current_user.adminRolle == 1:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    
-    user = Nutzer.get_or_none(Nutzer.Nutzername == username)
-    if not user:
-        return {"message": "User does not exist"}
-    if status not in ["active", "locked"]:
-        return {"message": "Invalid status"}
-    
-    user.gesperrt = status == "locked"
-    user.save()
-    return {"message": "User status updated successfully"}
+
+@app.get("/MeinProfiel")
+async def read_users_me(current_user: Nutzer = Depends(get_current_user)):
+    return {"username": current_user.Nutzername,
+            "Email": current_user.Email,
+            "NutzerID": current_user.NutzerID,
+            "Vorname": current_user.Vorname,
+            "Nachname": current_user.Nachname
+            }
