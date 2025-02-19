@@ -236,7 +236,7 @@ async def get_zeitvorschlaege(activity_id: int):
     
     res = (EventZeitVorschlag.filter(AktivitätID=activity_id)
            .join(Nutzer, on=(EventZeitVorschlag.ErstellerID == Nutzer.NutzerID))
-           .select(EventZeitVorschlag, Nutzer.Nutzername, fn.COUNT(EventZeitVorschlag.Startzeit, EventZeitVorschlag.Endzeit).alias('votes'))
+           .select(EventZeitVorschlag, Nutzer.Nutzername, fn.COUNT(fn.CONCAT(EventZeitVorschlag.Startzeit, EventZeitVorschlag.Endzeit)).alias('votes'))
            .group_by(EventZeitVorschlag.Startzeit, EventZeitVorschlag.Endzeit)
 
            .dicts()
