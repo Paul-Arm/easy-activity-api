@@ -54,7 +54,7 @@ async def send_message(message: NeueNachricht, current_user: Nutzer = Depends(ge
                 detail="Du bist entweder nicht in der Gruppe oder diese Gruppe existiert nicht"
             )
         new_message = Nachrichten.create(
-            Nachricht=message.Inhalt,
+            Inhalt=message.Inhalt,
             NutzerID=current_user.NutzerID,
             GruppenID=message.GruppenID,
             Zeitstempel=datetime.datetime.now()
